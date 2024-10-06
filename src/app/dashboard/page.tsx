@@ -12,6 +12,8 @@ import {
 import { db } from "@/db";
 import { Invoices } from "@/db/schema";
 import { cn } from "@/lib/utils";
+import { auth } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
 import { PlusCircle } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
@@ -21,7 +23,12 @@ export const metadata: Metadata = {
 };
 
 const DashboardPage = async () => {
-  const results = await db.select().from(Invoices);
+  const { userId } = auth();
+  if (!userId) return;
+  const results = await db
+    .select()
+    .from(Invoices)
+    .where(eq(Invoices.userId, userId));
 
   return (
     <>

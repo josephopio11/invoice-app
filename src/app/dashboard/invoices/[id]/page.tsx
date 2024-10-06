@@ -1,11 +1,27 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown";
 import { db } from "@/db";
 import { Invoices } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import { eq } from "drizzle-orm";
-import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
+import { and, eq } from "drizzle-orm";
+import { Pencil } from "lucide-react";
 import { notFound } from "next/navigation";
+
+const AVAILABLE_STATUSES = [
+  { id: "open", label: "Open" },
+  { id: "paid", label: "Paid" },
+  { id: "void", label: "Void" },
+  { id: "uncollectable", label: "Uncollectable" },
+];
 
 interface Props {
   params: {
@@ -14,6 +30,8 @@ interface Props {
 }
 
 export default async function SingleInvoicePage({ params }: Props) {
+  const { userId } = auth();
+  if (!userId) return;
   const { id } = await params;
   const invoiceId = parseInt(id);
 
@@ -23,7 +41,7 @@ export default async function SingleInvoicePage({ params }: Props) {
   const [invoice] = await db
     .select()
     .from(Invoices)
-    .where(eq(Invoices.id, invoiceId))
+    .where(and(eq(Invoices.id, invoiceId), eq(Invoices.userId, userId)))
     .limit(1);
 
   if (!invoice) notFound();
@@ -46,12 +64,23 @@ export default async function SingleInvoicePage({ params }: Props) {
           </Badge>
         </h1>
         <p className="flex gap-2 flex-col">
-          <Button variant={"ghost"} className="inline-flex gap-2" asChild>
-            <Link href="/dashboard/invoices/create">Add Invoice</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard">Back</Link>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant={"ghost"} className="inline-flex gap-2">
+                <Pencil className="w-4 h-4" />
+                Change Status
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {AVAILABLE_STATUSES.map((status) => (
+                <DropdownMenuItem key={status.id}>
+                  {status.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </p>
       </div>
       <pre>{JSON.stringify(invoice, null, 2)}</pre>
