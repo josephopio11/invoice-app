@@ -19,7 +19,7 @@ const NewInvoicePage = () => {
   }
 
   return (
-    <>
+    <div className="flex flex-col gap-4 mb-auto">
       <div className="flex justify-between">
         <h1 className="text-3xl font-semibold">Create New Invoice</h1>
       </div>
@@ -61,7 +61,7 @@ const NewInvoicePage = () => {
           <SubmitButton />
         </div>
       </form>
-    </>
+    </div>
   );
 };
 

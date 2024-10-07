@@ -31,7 +31,7 @@ const DashboardPage = async () => {
     .where(eq(Invoices.userId, userId));
 
   return (
-    <>
+    <div className="flex flex-col gap-4 mb-auto">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Invoices</h1>
         <p>
@@ -117,7 +117,7 @@ const DashboardPage = async () => {
           ))}
         </TableBody>
       </Table>
-    </>
+    </div>
   );
 };
 
