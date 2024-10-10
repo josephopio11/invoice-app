@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1728029500959,
-      "tag": "0000_chunky_kate_bishop",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1728194996548,
-      "tag": "0001_oval_nitro",
+      "when": 1728571572274,
+      "tag": "0000_redundant_steve_rogers",
       "breakpoints": true
     }
   ]

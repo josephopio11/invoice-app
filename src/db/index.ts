@@ -1,4 +1,4 @@
-import { Invoices } from "@/db/schema";
+import { Customers, Invoices } from "@/db/schema";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
@@ -10,5 +10,6 @@ const pool = new Pool({
 export const db = drizzle(pool, {
   schema: {
     Invoices,
+    Customers,
   },
 });

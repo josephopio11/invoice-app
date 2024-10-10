@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import { Toaster } from "@/components/ui/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
@@ -37,6 +38,7 @@ export default function RootLayout({
         >
           <Header />
           {children}
+          <Toaster richColors={true} />
           <Footer />
         </body>
       </html>

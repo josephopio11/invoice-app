@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/db";
-import { Invoices } from "@/db/schema";
+import { Customers, Invoices } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
@@ -28,7 +28,14 @@ const DashboardPage = async () => {
   const results = await db
     .select()
     .from(Invoices)
+    .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
     .where(eq(Invoices.userId, userId));
+
+  const invoices = results?.map((invoice) => ({
+    ...invoice.invoices,
+    customer: invoice.customers,
+  }));
+  console.log(invoices);
 
   return (
     <div className="flex flex-col gap-4 mb-auto">
@@ -56,14 +63,14 @@ const DashboardPage = async () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {results.map((result) => (
-            <TableRow key={result.id}>
+          {invoices.map((invoice) => (
+            <TableRow key={invoice.id}>
               <TableCell className="p-0 text-left ">
                 <Link
-                  href={`/dashboard/invoices/${result.id}`}
+                  href={`/dashboard/invoices/${invoice.id}`}
                   className="font-semibold block p-4"
                 >
-                  {new Date(result.createTs).toLocaleDateString("en-GB", {
+                  {new Date(invoice.createTs).toLocaleDateString("en-GB", {
                     // weekday: "short",
                     month: "short",
                     day: "numeric",
@@ -73,44 +80,44 @@ const DashboardPage = async () => {
               </TableCell>
               <TableCell className="p-0 text-left">
                 <Link
-                  href={`/dashboard/invoices/${result.id}`}
+                  href={`/dashboard/invoices/${invoice.id}`}
                   className="font-semibold block p-4"
                 >
-                  Philip J. Fry
+                  {invoice.customer.name}
                 </Link>
               </TableCell>
               <TableCell className="p-0 text-left">
                 <Link
-                  href={`/dashboard/invoices/${result.id}`}
+                  href={`/dashboard/invoices/${invoice.id}`}
                   className="block p-4"
                 >
-                  philip@fryingpan.com
+                  {invoice.customer.email}
                 </Link>
               </TableCell>
               <TableCell className="p-0 text-center">
                 <Link
-                  href={`/dashboard/invoices/${result.id}`}
+                  href={`/dashboard/invoices/${invoice.id}`}
                   className="block p-4"
                 >
                   <Badge
                     className={cn(
                       "rounded-full capitalize",
-                      result.status === "open" && "bg-emerald-500",
-                      result.status === "paid" && "bg-green-700",
-                      result.status === "void" && "bg-zinc-700",
-                      result.status === "uncollectable" && "bg-red-500"
+                      invoice.status === "open" && "bg-blue-500",
+                      invoice.status === "paid" && "bg-green-700",
+                      invoice.status === "void" && "bg-zinc-700",
+                      invoice.status === "uncollectable" && "bg-red-500"
                     )}
                   >
-                    {result.status}
+                    {invoice.status}
                   </Badge>
                 </Link>
               </TableCell>
               <TableCell className="p-0 text-right">
                 <Link
-                  href={`/dashboard/invoices/${result.id}`}
+                  href={`/dashboard/invoices/${invoice.id}`}
                   className="font-semibold block p-4"
                 >
-                  ${(result.value / 100).toFixed(2)}
+                  ${(invoice.value / 100).toFixed(2)}
                 </Link>
               </TableCell>
             </TableRow>
