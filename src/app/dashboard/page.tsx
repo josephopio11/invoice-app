@@ -13,7 +13,7 @@ import { db } from "@/db";
 import { Customers, Invoices } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { PlusCircle } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
@@ -23,13 +23,23 @@ export const metadata: Metadata = {
 };
 
 const DashboardPage = async () => {
-  const { userId } = auth();
+  const { userId, orgId } = auth();
   if (!userId) return;
-  const results = await db
-    .select()
-    .from(Invoices)
-    .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
-    .where(eq(Invoices.userId, userId));
+  let results;
+
+  if (orgId) {
+    results = await db
+      .select()
+      .from(Invoices)
+      .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
+      .where(eq(Invoices.organisationId, orgId));
+  } else {
+    results = await db
+      .select()
+      .from(Invoices)
+      .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
+      .where(and(eq(Invoices.userId, userId), isNull(Invoices.organisationId)));
+  }
 
   const invoices = results?.map((invoice) => ({
     ...invoice.invoices,
